@@ -178,7 +178,7 @@ hypothesis-verifier-agent — формирует и верифицирует г�
 | hypothesis-verifier-agent | `.claude/agents/hypothesis-verifier-agent.md` | ✅ готов |
 | product-manager-agent | `.claude/agents/product-manager-agent.md` | ✅ готов |
 | prototyper-agent | `.claude/agents/prototyper-agent.md` | 🔜 |
-| analyst-agent | `.claude/agents/analyst-agent.md` | 🔜 |
+| analyst-agent | `.claude/agents/analyst-agent.md` | ✅ готов |
 | designer-agent | `.claude/agents/designer-agent.md` | 🔜 |
 | developer-agent | `.claude/agents/developer-agent.md` | 🔜 |
 | tester-agent | `.claude/agents/tester-agent.md` | 🔜 |
