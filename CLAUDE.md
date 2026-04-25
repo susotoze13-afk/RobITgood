@@ -164,8 +164,8 @@ hypothesis-verifier-agent — формирует и верифицирует г�
 
 | MCP | Агенты | Назначение |
 |-----|--------|------------|
-| `brave-search` | research-agent | Широкий поиск 10-15 источников |
-| `firecrawl` | research-agent | Полный текст топ-5 страниц |
+| `brave-search` | research-agent, analyst-agent | Широкий поиск 10-15 источников |
+| `firecrawl` | research-agent, analyst-agent | Полный текст топ-5 страниц |
 | `gdrive` | research-agent, hypothesis-verifier-agent, product-manager-agent, analyst-agent | Создание и сохранение отчётов |
 
 ---
