@@ -44,7 +44,7 @@ description: На основе дизайн-спецификации от analys
 
 *(дождаться ответа пользователя)*
 
-Если предоставлен путь к прототипу — прочитай файлы прототипа через Read, чтобы использовать существующую структуру HTML как основу.
+Если предоставлен путь к прототипу — прочитай файлы прототипа через Read, чтобы использовать существующую структуру HTML как основу. Если файлы не существуют или путь недоступен — продолжи без них, используя только дизайн-спецификацию (прототип является необязательным артефактом параллельной ветки).
 
 ### Шаг 3: Создать дизайн-систему (design-system.css)
 
@@ -183,7 +183,7 @@ select.form-input { cursor: pointer; }
 /* Бейджи */
 .badge { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-3); border-radius: var(--radius-full); font-size: var(--text-caption); font-weight: var(--weight-medium); }
 .badge-primary { background: var(--color-primary-light); color: var(--color-primary); }
-.badge-success { background: rgba(var(--color-success), 0.1); color: var(--color-success); }
+.badge-success { background: color-mix(in srgb, var(--color-success) 10%, transparent); color: var(--color-success); }
 .badge-error { background: rgba(var(--color-error), 0.1); color: var(--color-error); }
 .badge-warning { background: rgba(var(--color-warning), 0.1); color: var(--color-warning); }
 .badge-neutral { background: var(--color-bg-secondary); color: var(--color-text-secondary); }
