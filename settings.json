@@ -1,0 +1,129 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_DISABLE_TMUX": "0",
+    "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+    "BRAVE_API_KEY": "BSA_wzSmVreK2vKC19QMigiWJy7Icae",
+    "FIRECRAWL_API_KEY": "fc-48319405932841fc975886189159ba2d"
+  },
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Bash(mkdir *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(open *)",
+      "Bash(node *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(python3 *)",
+      "Bash(echo *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(date *)",
+      "Bash(pwd)",
+      "Bash(which *)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git branch*)",
+      "Bash(git show*)",
+      "Agent",
+      "SendMessage",
+      "TodoWrite",
+      "Skill"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(*credentials*)",
+      "Read(*secret*)",
+      "Read(**/.*token*)",
+      "Read(**/*key*.pem)",
+      "Read(**/*key*.json)",
+      "Bash(cat */.env*)",
+      "Bash(cat *.pem)",
+      "Bash(cat *credentials*)",
+      "Bash(cat *secret*)",
+      "Bash(rm -rf *)",
+      "Bash(rm -r *)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(git checkout -- .)",
+      "Bash(git branch -D *)",
+      "Bash(chmod 777 *)",
+      "Bash(curl * | bash)",
+      "Bash(curl * | sh)",
+      "Bash(wget * | bash)",
+      "Bash(eval *)",
+      "Bash(export *TOKEN*)",
+      "Bash(export *SECRET*)",
+      "Bash(export *KEY*)",
+      "Bash(export *PASSWORD*)"
+    ],
+    "defaultMode": "bypassPermissions"
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "superpowers-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "obra/superpowers-marketplace"
+      }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
+  "language": "Russian",
+  "autoCompactWindow": 1000000,
+  "skipDangerousModePermissionPrompt": true,
+  "voiceEnabled": true,
+  "maxEffort": true,
+  "teammateMode": "tmux",
+  "effortLevel": "xhigh",
+  "http.proxy": "http://127.0.0.1:7890",
+  "http.proxySupport": "on",
+  "http.systemCertificates": true,
+  "mcpServers": {
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "BSA_wzSmVreK2vKC19QMigiWJy7Icae"
+      }
+    },
+    "firecrawl": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "fc-48319405932841fc975886189159ba2d"
+      }
+    },
+    "gdrive": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-gdrive"],
+      "env": {
+        "GDRIVE_CREDENTIALS_PATH": "C:\\Users\\1\\.config\\mcp-gdrive\\credentials.json",
+        "GDRIVE_TOKEN_PATH": "C:\\Users\\1\\.config\\mcp-gdrive\\token.json"
+      }
+    }
+  }
+}
