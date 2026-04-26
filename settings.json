@@ -4,7 +4,7 @@
     "CLAUDE_CODE_DISABLE_TMUX": "0",
     "NODE_TLS_REJECT_UNAUTHORIZED": "0",
     "BRAVE_API_KEY": "Укажи_свой_BRAVE_API_KEY",
-    "FIRECRAWL_API_KEY": "Укажи_свой_BRAVE_API_KEY"
+    "FIRECRAWL_API_KEY": "Укажи_свой_FIRECRAWL_API_KEY"
   },
   "permissions": {
     "allow": [
@@ -114,7 +114,7 @@
       "command": "npx",
       "args": ["-y", "firecrawl-mcp"],
       "env": {
-        "FIRECRAWL_API_KEY": "Укажи_свой_BRAVE_API_KEY"
+        "FIRECRAWL_API_KEY": "Укажи_свой_FIRECRAWL_API_KEY"
       }
     },
     "gdrive": {

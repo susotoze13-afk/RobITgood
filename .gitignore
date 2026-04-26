@@ -1,0 +1,7 @@
+settings.local.json
+tmp-gdoc/
+.env
+.env.*
+*.pem
+*credentials*.json
+*token*.json
