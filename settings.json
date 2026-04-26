@@ -3,8 +3,8 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_DISABLE_TMUX": "0",
     "NODE_TLS_REJECT_UNAUTHORIZED": "0",
-    "BRAVE_API_KEY": "BSA_wzSmVreK2vKC19QMigiWJy7Icae",
-    "FIRECRAWL_API_KEY": "fc-48319405932841fc975886189159ba2d"
+    "BRAVE_API_KEY": "",
+    "FIRECRAWL_API_KEY": ""
   },
   "permissions": {
     "allow": [
