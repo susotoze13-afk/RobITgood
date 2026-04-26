@@ -107,14 +107,14 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
       "env": {
-        "BRAVE_API_KEY": "BSA_wzSmVreK2vKC19QMigiWJy7Icae"
+        "BRAVE_API_KEY": "BSA_"
       }
     },
     "firecrawl": {
       "command": "npx",
       "args": ["-y", "firecrawl-mcp"],
       "env": {
-        "FIRECRAWL_API_KEY": "fc-48319405932841fc975886189159ba2d"
+        "FIRECRAWL_API_KEY": "fc-"
       }
     },
     "gdrive": {
