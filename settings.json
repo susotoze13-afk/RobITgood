@@ -3,8 +3,8 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_DISABLE_TMUX": "0",
     "NODE_TLS_REJECT_UNAUTHORIZED": "0",
-    "BRAVE_API_KEY": "",
-    "FIRECRAWL_API_KEY": ""
+    "BRAVE_API_KEY": "BRAVE_API_KEY",
+    "FIRECRAWL_API_KEY": "BRAVE_API_KEY"
   },
   "permissions": {
     "allow": [
@@ -107,14 +107,14 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
       "env": {
-        "BRAVE_API_KEY": "BSA_"
+        "BRAVE_API_KEY": "BRAVE_API_KEY"
       }
     },
     "firecrawl": {
       "command": "npx",
       "args": ["-y", "firecrawl-mcp"],
       "env": {
-        "FIRECRAWL_API_KEY": "fc-"
+        "FIRECRAWL_API_KEY": "BRAVE_API_KEY"
       }
     },
     "gdrive": {
