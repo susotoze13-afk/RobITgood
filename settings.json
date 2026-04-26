@@ -99,7 +99,7 @@
   "maxEffort": true,
   "teammateMode": "tmux",
   "effortLevel": "xhigh",
-  "http.proxy": "http://127.0.0.1:7890",
+  "http.proxy": "http://127.0.0.1:XXXX",
   "http.proxySupport": "on",
   "http.systemCertificates": true,
   "mcpServers": {
