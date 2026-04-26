@@ -3,8 +3,8 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_DISABLE_TMUX": "0",
     "NODE_TLS_REJECT_UNAUTHORIZED": "0",
-    "BRAVE_API_KEY": "BRAVE_API_KEY",
-    "FIRECRAWL_API_KEY": "BRAVE_API_KEY"
+    "BRAVE_API_KEY": "Укажи_свой_BRAVE_API_KEY",
+    "FIRECRAWL_API_KEY": "Укажи_свой_BRAVE_API_KEY"
   },
   "permissions": {
     "allow": [
@@ -121,8 +121,8 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-gdrive"],
       "env": {
-        "GDRIVE_CREDENTIALS_PATH": "C:\\Users\\1\\.config\\mcp-gdrive\\credentials.json",
-        "GDRIVE_TOKEN_PATH": "C:\\Users\\1\\.config\\mcp-gdrive\\token.json"
+        "GDRIVE_CREDENTIALS_PATH": "\\.config\\mcp-gdrive\\credentials.json",
+        "GDRIVE_TOKEN_PATH": "\\.config\\mcp-gdrive\\token.json"
       }
     }
   }
