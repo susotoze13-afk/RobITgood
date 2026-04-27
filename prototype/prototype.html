@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>СоноСтресс — трекер стресса и сна</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    /* ===== ПЕРЕМЕННЫЕ ===== */
+    :root {
+      --primary:       #6c63ff;
+      --primary-light: #a29bfe;
+      --primary-dark:  #4834d4;
+      --secondary:     #c3b4f7;
+      --bg:            #0f172a;
+      --bg-card:       #1e2d4a;
+      --bg-card2:      #162033;
+      --text:          #e8e4f8;
+      --text-muted:    #8b8fa8;
+      --text-dim:      #5a6280;
+      --border:        #2a3a5c;
+      --success:       #4ade80;
+      --warning:       #fbbf24;
+      --error:         #f87171;
+      --nav-height:    64px;
+      --radius:        14px;
+      --radius-sm:     8px;
+    }
+
+    /* ===== RESET ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #070d1a;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== ОБЁРТКА ТЕЛЕФОНА ===== */
+    .phone-frame {
+      max-width: 390px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== ЭКРАНЫ ===== */
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow-y: auto;
+      padding-bottom: var(--nav-height);
+      min-height: calc(100vh - var(--nav-height));
+    }
+    .screen.active { display: flex; }
+
+    /* ===== ХЕДЕР ===== */
+    .header {
+      padding: 52px 20px 16px;
+      background: linear-gradient(180deg, #0a1628 0%, var(--bg) 100%);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .header-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .header-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--primary-light);
+      cursor: pointer;
+      padding: 6px 0;
+    }
+    .header-back svg { width: 18px; height: 18px; }
+
+    /* ===== НИЖНЯЯ НАВИГАЦИЯ ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 390px;
+      height: var(--nav-height);
+      background: rgba(14, 22, 40, 0.96);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      z-index: 100;
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 8px 4px;
+      transition: all 0.2s;
+    }
+    .nav-item svg { width: 22px; height: 22px; stroke: var(--text-dim); transition: all 0.2s; }
+    .nav-item span { font-size: 11px; color: var(--text-dim); font-weight: 500; transition: all 0.2s; }
+    .nav-item.active svg { stroke: var(--primary-light); }
+    .nav-item.active span { color: var(--primary-light); }
+    .nav-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--primary);
+      margin-top: -2px;
+      display: none;
+    }
+    .nav-item.active .nav-dot { display: block; }
+
+    /* ===== КОНТЕНТ ===== */
+    .content {
+      padding: 16px 20px;
+      flex: 1;
+    }
+
+    /* ===== КАРТОЧКИ ===== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .card-sm {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+
+    /* ===== КНОПКИ ===== */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 14px 24px;
+      font-size: 15px;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(108, 99, 255, 0.35);
+    }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      padding: 12px 20px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:active { transform: scale(0.98); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--primary-light);
+      padding: 10px 16px;
+      font-size: 14px;
+    }
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ===== ФОРМЫ ===== */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--primary-light); }
+    .form-input[type="time"] { color-scheme: dark; }
+    textarea.form-input { resize: none; height: 80px; }
+
+    /* ===== ПОЛЗУНОК ===== */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .slider-label-sm { font-size: 12px; color: var(--text-dim); width: 14px; text-align: center; }
+    input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(108,99,255,0.5);
+    }
+    .slider-value {
+      width: 32px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary-light);
+    }
+
+    /* ===== МИНИ-СТАТИСТИКА ===== */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-unit {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-left: 3px;
+    }
+    .stat-trend {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .trend-up { color: var(--success); }
+    .trend-down { color: var(--error); }
+
+    /* ===== БЕЙДЖ ===== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-purple { background: rgba(108,99,255,0.2); color: var(--primary-light); }
+    .badge-green  { background: rgba(74,222,128,0.15); color: var(--success); }
+    .badge-yellow { background: rgba(251,191,36,0.15); color: var(--warning); }
+    .badge-red    { background: rgba(248,113,113,0.15); color: var(--error); }
+
+    /* ===== МИНИ-ГРАФИК ===== */
+    .mini-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 48px;
+      margin-top: 8px;
+    }
+    .mini-bar {
+      flex: 1;
+      border-radius: 3px 3px 0 0;
+      min-height: 4px;
+      transition: all 0.3s;
+    }
+    .bar-sleep { background: var(--primary-light); }
+    .bar-stress { background: var(--warning); }
+    .chart-days {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .chart-day {
+      flex: 1;
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* ===== ПРОГРЕСС ===== */
+    .progress-bar-wrap {
+      background: var(--bg-card2);
+      border-radius: 8px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 8px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      transition: width 0.5s ease;
+    }
+
+    /* ===== СПИСОК ЗАПИСЕЙ ===== */
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .list-item:active { border-color: var(--primary-light); }
+    .list-item-left { flex: 1; }
+    .list-item-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .list-item-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .list-item-right { color: var(--text-dim); }
+    .list-item-right svg { width: 16px; height: 16px; }
+
+    /* ===== АВАТАР / ЭМОДЗИ-ИКОНКА ===== */
+    .icon-circle {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-right: 14px;
+    }
+    .icon-blue   { background: rgba(108,99,255,0.2); }
+    .icon-green  { background: rgba(74,222,128,0.15); }
+    .icon-yellow { background: rgba(251,191,36,0.15); }
+    .icon-pink   { background: rgba(248,113,113,0.15); }
+
+    /* ===== ПЕРЕКЛЮЧАТЕЛЬ ===== */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info { flex: 1; }
+    .toggle-title { font-size: 14px; font-weight: 500; color: var(--text); }
+    .toggle-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .toggle {
+      width: 46px; height: 26px;
+      background: var(--border);
+      border-radius: 13px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.3s;
+    }
+    .toggle.on { background: var(--primary); }
+    .toggle.on::after { transform: translateX(20px); }
+
+    /* ===== РАЗДЕЛИТЕЛЬ ===== */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    /* ===== СЕКЦИИ ===== */
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    /* ===== ПРИВЕТСТВИЕ ===== */
+    .greeting-time {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .greeting-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 2px;
+    }
+    .greeting-date {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ===== АНИМАЦИЯ ДЫХАНИЯ ===== */
+    @keyframes breathe {
+      0%   { transform: scale(0.85); opacity: 0.7; }
+      50%  { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(0.85); opacity: 0.7; }
+    }
+    .breath-circle {
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(108,99,255,0.6) 0%, rgba(108,99,255,0.1) 70%);
+      border: 2px solid rgba(162,155,254,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 30px auto;
+      animation: breathe 8s ease-in-out infinite;
+      cursor: pointer;
+    }
+    .breath-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary-light);
+      text-align: center;
+    }
+    .breath-phase {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+    .timer-display {
+      text-align: center;
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 20px 0 8px;
+      font-variant-numeric: tabular-nums;
+    }
+    .timer-label {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    .timer-controls {
+      display: flex;
+      gap: 12px;
+      padding: 0 20px;
+    }
+
+    /* ===== ШАГИ КПТ ===== */
+    .step-indicator {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .step-dot {
+      height: 4px;
+      flex: 1;
+      border-radius: 2px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+    .step-dot.done { background: var(--primary); }
+    .step-dot.active { background: var(--primary-light); }
+    .step-number {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .step-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .step-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    /* ===== ИНСАЙТЫ ===== */
+    .insight-card {
+      background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(195,180,247,0.05));
+      border: 1px solid rgba(108,99,255,0.3);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .insight-icon { font-size: 20px; margin-bottom: 8px; }
+    .insight-text { font-size: 14px; color: var(--text); line-height: 1.5; }
+    .insight-text strong { color: var(--primary-light); }
+
+    /* ===== SVG ГРАФИК ===== */
+    .chart-svg {
+      width: 100%;
+      overflow: visible;
+    }
+    .chart-line-sleep { stroke: var(--primary-light); }
+    .chart-line-stress { stroke: var(--warning); }
+
+    /* ===== ОКНО СНА (CBTI) ===== */
+    .sleep-window-card {
+      background: linear-gradient(135deg, #1a1060, #0f1a3a);
+      border: 1px solid rgba(108,99,255,0.4);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .sleep-window-icon { font-size: 36px; margin-bottom: 12px; }
+    .sleep-window-title { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+    .sleep-window-times {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .sleep-time { text-align: center; }
+    .sleep-time-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .sleep-time-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .sleep-arrow { font-size: 24px; color: var(--text-dim); }
+
+    /* ===== СОСТОЯНИЕ УСПЕХА ===== */
+    .success-state {
+      text-align: center;
+      padding: 32px 20px;
+    }
+    .success-icon {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: rgba(74,222,128,0.15);
+      border: 2px solid var(--success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 16px;
+    }
+    .success-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .success-sub { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+    /* ===== ПУСТОЕ СОСТОЯНИЕ ===== */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .empty-sub { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+    /* ===== ВКЛАДКИ ===== */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card2);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: var(--bg-card);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    /* ===== МОДАЛ ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      align-items: flex-end;
+      max-width: 390px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet {
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: 20px 20px 0 0;
+      padding: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .modal-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+
+    /* ===== ТЕМА УПРАЖНЕНИЯ ===== */
+    .exercise-header {
+      text-align: center;
+      padding: 20px 20px 8px;
+    }
+    .exercise-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .exercise-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .exercise-instruction {
+      background: var(--bg-card2);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0 20px 16px;
+    }
+
+    /* ===== СПЕЦИАЛЬНЫЕ ЦВЕТА ===== */
+    .color-primary { color: var(--primary-light); }
+    .color-success { color: var(--success); }
+    .color-warning { color: var(--warning); }
+    .color-error   { color: var(--error); }
+    .color-muted   { color: var(--text-muted); }
+    .text-sm  { font-size: 13px; }
+    .text-xs  { font-size: 11px; }
+    .text-lg  { font-size: 18px; }
+    .fw-600   { font-weight: 600; }
+    .fw-700   { font-weight: 700; }
+    .mt-4  { margin-top: 4px; }
+    .mt-8  { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-4  { margin-bottom: 4px; }
+    .mb-8  { margin-bottom: 8px; }
+    .mb-16 { margin-bottom: 16px; }
+    .flex  { display: flex; }
+    .flex-1 { flex: 1; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+
+    /* ===== ЗВЁЗДЫ ФОНА ===== */
+    .stars-bg {
+      position: fixed;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 390px; height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: white;
+      opacity: 0.15;
+    }
+
+    /* ===== SCROLL ===== */
+    .screen::-webkit-scrollbar { display: none; }
+    .screen { scrollbar-width: none; }
+  </style>
+</head>
+<body>
+
+<!-- Фоновые звёзды -->
+<div class="stars-bg" id="starsBg"></div>
+
+<div class="phone-frame">
+
+  <!-- ========================================
+       ЭКРАН 1: ДАШБОРД
+       ======================================== -->
+  <div class="screen active" id="screen-dashboard">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="greeting-time" id="currentTime">Добрый вечер</div>
+          <div class="greeting-name">Алексей</div>
+          <div class="greeting-date" id="currentDate">Суббота, 26 апреля</div>
+        </div>
+        <div onclick="goTo('screen-settings')" style="cursor:pointer;padding:8px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Кнопка заполнить дневник -->
+      <button class="btn btn-primary mb-16" onclick="goTo('screen-diary')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Заполнить дневник сна
+      </button>
+
+      <!-- Сегодняшние показатели -->
+      <p class="card-title" style="margin-bottom:10px;">СЕГОДНЯ</p>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Качество сна</div>
+          <div class="stat-value color-primary">7.2<span class="stat-unit">/10</span></div>
+          <div class="stat-trend trend-up">↑ +0.5 вчера</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Уровень стресса</div>
+          <div class="stat-value color-warning">4.8<span class="stat-unit">/10</span></div>
+          <div class="stat-trend trend-up">↓ −1.2 вчера</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Сон прошлой ночи</div>
+          <div class="stat-value color-success">7.5<span class="stat-unit">ч</span></div>
+          <div class="stat-trend trend-up">23:30 → 07:00</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Серия — дней</div>
+          <div class="stat-value color-primary">12</div>
+          <div class="stat-trend trend-up" style="color:var(--primary-light);">🔥 рекорд!</div>
+        </div>
+      </div>
+
+      <!-- График 7 дней -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-8">
+          <span class="card-title" style="margin-bottom:0;">7 ДНЕЙ</span>
+          <div class="flex gap-8">
+            <span class="text-xs color-primary fw-600">● Сон</span>
+            <span class="text-xs color-warning fw-600">● Стресс</span>
+          </div>
+        </div>
+        <!-- Сон -->
+        <div class="mini-chart">
+          <div class="mini-bar bar-sleep" style="height:55%"></div>
+          <div class="mini-bar bar-sleep" style="height:62%"></div>
+          <div class="mini-bar bar-sleep" style="height:48%"></div>
+          <div class="mini-bar bar-sleep" style="height:70%"></div>
+          <div class="mini-bar bar-sleep" style="height:65%"></div>
+          <div class="mini-bar bar-sleep" style="height:72%"></div>
+          <div class="mini-bar bar-sleep" style="height:75%; opacity:1;"></div>
+        </div>
+        <!-- Стресс -->
+        <div class="mini-chart" style="margin-top:4px;">
+          <div class="mini-bar bar-stress" style="height:70%"></div>
+          <div class="mini-bar bar-stress" style="height:60%"></div>
+          <div class="mini-bar bar-stress" style="height:80%"></div>
+          <div class="mini-bar bar-stress" style="height:50%"></div>
+          <div class="mini-bar bar-stress" style="height:55%"></div>
+          <div class="mini-bar bar-stress" style="height:45%"></div>
+          <div class="mini-bar bar-stress" style="height:48%;"></div>
+        </div>
+        <div class="chart-days">
+          <div class="chart-day">Пн</div>
+          <div class="chart-day">Вт</div>
+          <div class="chart-day">Ср</div>
+          <div class="chart-day">Чт</div>
+          <div class="chart-day">Пт</div>
+          <div class="chart-day">Сб</div>
+          <div class="chart-day" style="color:var(--primary-light);">Вс</div>
+        </div>
+      </div>
+
+      <!-- Быстрые действия -->
+      <p class="card-title" style="margin-bottom:10px;">БЫСТРЫЕ ДЕЙСТВИЯ</p>
+      <div onclick="goTo('screen-techniques')" class="list-item">
+        <div class="icon-circle icon-blue">🫁</div>
+        <div class="list-item-left">
+          <div class="list-item-title">Техники релаксации</div>
+          <div class="list-item-sub">Дыхание, PMR, заземление</div>
+        </div>
+        <div class="list-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div onclick="goTo('screen-cbt-diary')" class="list-item">
+        <div class="icon-circle icon-pink">💭</div>
+        <div class="list-item-left">
+          <div class="list-item-title">Дневник мыслей</div>
+          <div class="list-item-sub">Работа с тревожными мыслями</div>
+        </div>
+        <div class="list-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div onclick="goTo('screen-cbti')" class="list-item">
+        <div class="icon-circle icon-yellow">🌙</div>
+        <div class="list-item-left">
+          <div class="list-item-title">КПТ-И модуль</div>
+          <div class="list-item-sub">Оптимизация окна сна</div>
+        </div>
+        <div class="list-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================
+       ЭКРАН 2: ДНЕВНИК СНА
+       ======================================== -->
+  <div class="screen" id="screen-diary">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-title">Дневник сна</div>
+          <div class="header-subtitle">26 апреля 2026</div>
+        </div>
+        <span class="badge badge-purple">Сегодня</span>
+      </div>
+    </div>
+
+    <div class="content">
+      <div id="diary-form">
+        <!-- Время сна -->
+        <div class="card">
+          <div class="card-title">ВРЕМЯ СНА</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Отход ко сну</label>
+              <input type="time" class="form-input" value="23:30" id="sleep-time">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Пробуждение</label>
+              <input type="time" class="form-input" value="07:00" id="wake-time">
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:10px 12px;background:var(--bg-card2);border-radius:8px;text-align:center;">
+            <span class="text-sm color-muted">Продолжительность: </span>
+            <span class="text-sm fw-600 color-success">7 ч 30 мин</span>
+          </div>
+        </div>
+
+        <!-- Качество сна -->
+        <div class="card">
+          <div class="card-title">КАЧЕСТВО СНА</div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm color-muted">Насколько хорошо вы спали?</span>
+            <span class="badge badge-green">Хорошо</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label-sm">1</span>
+            <input type="range" min="1" max="10" value="7" id="sleep-quality" oninput="updateSlider('sleep-quality','sleep-quality-val','sleep-qual-badge')">
+            <span class="slider-label-sm">10</span>
+            <span class="slider-value" id="sleep-quality-val">7</span>
+          </div>
+        </div>
+
+        <!-- Уровень стресса -->
+        <div class="card">
+          <div class="card-title">УРОВЕНЬ СТРЕССА</div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm color-muted">Насколько вы напряжены?</span>
+            <span class="badge badge-yellow" id="stress-badge">Умеренно</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label-sm">1</span>
+            <input type="range" min="1" max="10" value="5" id="stress-level" oninput="updateSlider('stress-level','stress-level-val','stress-badge')">
+            <span class="slider-label-sm">10</span>
+            <span class="slider-value" id="stress-level-val">5</span>
+          </div>
+        </div>
+
+        <!-- Самочувствие -->
+        <div class="card">
+          <div class="card-title">САМОЧУВСТВИЕ УТРОМ</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px;">
+            <div class="mood-btn" onclick="selectMood(this)" data-mood="😴" style="text-align:center;padding:10px 4px;border-radius:8px;cursor:pointer;background:var(--bg-card2);border:1px solid var(--border);">
+              <div style="font-size:22px;">😴</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Усталый</div>
+            </div>
+            <div class="mood-btn" onclick="selectMood(this)" data-mood="😌" style="text-align:center;padding:10px 4px;border-radius:8px;cursor:pointer;background:rgba(108,99,255,0.2);border:1px solid var(--primary);">
+              <div style="font-size:22px;">😌</div>
+              <div style="font-size:10px;color:var(--primary-light);margin-top:3px;">Спокойный</div>
+            </div>
+            <div class="mood-btn" onclick="selectMood(this)" data-mood="😊" style="text-align:center;padding:10px 4px;border-radius:8px;cursor:pointer;background:var(--bg-card2);border:1px solid var(--border);">
+              <div style="font-size:22px;">😊</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Бодрый</div>
+            </div>
+            <div class="mood-btn" onclick="selectMood(this)" data-mood="⚡" style="text-align:center;padding:10px 4px;border-radius:8px;cursor:pointer;background:var(--bg-card2);border:1px solid var(--border);">
+              <div style="font-size:22px;">⚡</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Энергичный</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Заметка -->
+        <div class="card">
+          <div class="card-title">ЗАМЕТКА</div>
+          <textarea class="form-input" placeholder="Как прошла ночь? Снились сны? Что тревожит?">Снился яркий сон. Просыпался один раз около 3 ночи, но быстро снова уснул.</textarea>
+        </div>
+
+        <button class="btn btn-primary" onclick="saveDiary()">Сохранить запись</button>
+        <div style="height:8px;"></div>
+      </div>
+
+      <!-- Состояние успеха -->
+      <div id="diary-saved" style="display:none;">
+        <div class="success-state">
+          <div class="success-icon">✓</div>
+          <div class="success-title">Запись сохранена!</div>
+          <div class="success-sub">Отлично! Продолжайте вести дневник каждый день. Уже 12 дней подряд.</div>
+          <div style="margin-top:24px;display:grid;gap:10px;">
+            <button class="btn btn-primary" onclick="goTo('screen-dashboard')">На главную</button>
+            <button class="btn btn-secondary" onclick="showDiaryForm()">Редактировать</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================
+       ЭКРАН 3: ТЕХНИКИ РЕЛАКСАЦИИ
+       ======================================== -->
+  <div class="screen" id="screen-techniques">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-title">Техники</div>
+          <div class="header-subtitle">Релаксация и снижение стресса</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div id="technique-list">
+        <p class="card-title" style="margin-bottom:10px;">ДЫХАТЕЛЬНЫЕ</p>
+
+        <div class="list-item" onclick="openTechnique('478')">
+          <div class="icon-circle icon-blue">🌊</div>
+          <div class="list-item-left">
+            <div class="list-item-title">Дыхание 4-7-8</div>
+            <div class="list-item-sub">Быстрое снятие тревоги · 5 мин</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge badge-green">Попул.</span>
+            <div class="list-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+          </div>
+        </div>
+
+        <div class="list-item" onclick="openTechnique('square')">
+          <div class="icon-circle icon-blue">◻️</div>
+          <div class="list-item-left">
+            <div class="list-item-title">Квадратное дыхание</div>
+            <div class="list-item-sub">Концентрация и баланс · 4 мин</div>
+          </div>
+          <div class="list-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+
+        <div class="divider"></div>
+        <p class="card-title" style="margin-bottom:10px;">ТЕЛЕСНЫЕ</p>
+
+        <div class="list-item" onclick="openTechnique('pmr')">
+          <div class="icon-circle icon-green">💪</div>
+          <div class="list-item-left">
+            <div class="list-item-title">Прогрессивная мышечная релаксация</div>
+            <div class="list-item-sub">Снятие мышечного напряжения · 15 мин</div>
+          </div>
+          <div class="list-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+
+        <div class="divider"></div>
+        <p class="card-title" style="margin-bottom:10px;">КОГНИТИВНЫЕ</p>
+
+        <div class="list-item" onclick="openTechnique('grounding')">
+          <div class="icon-circle icon-yellow">🌿</div>
+          <div class="list-item-left">
+            <div class="list-item-title">Заземление 5-4-3-2-1</div>
+            <div class="list-item-sub">При панике и тревоге · 3 мин</div>
+          </div>
+          <div class="list-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Экран упражнения -->
+      <div id="technique-exercise" style="display:none;">
+        <div onclick="closeTechnique()" class="header-back" style="margin-bottom:16px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          Назад к списку
+        </div>
+
+        <div class="exercise-header">
+          <div class="exercise-title" id="ex-title">Дыхание 4-7-8</div>
+          <div class="exercise-desc" id="ex-desc">Техника помогает снизить тревогу за 3-5 минут. Разработана доктором Вейлем.</div>
+        </div>
+
+        <!-- Анимация дыхания -->
+        <div class="breath-circle" id="breathCircle">
+          <div class="breath-text" id="breathInner">Дышите</div>
+        </div>
+        <div class="breath-phase" id="breathPhase">Нажмите, чтобы начать</div>
+
+        <div class="timer-display" id="timerDisplay">05:00</div>
+        <div class="timer-label" id="timerLabel">Нажмите кнопку, чтобы начать</div>
+
+        <div id="ex-instructions" class="exercise-instruction">
+          Инструкция загружается...
+        </div>
+
+        <div class="timer-controls" style="margin-bottom:16px;">
+          <button class="btn btn-primary flex-1" id="btnTimerStart" onclick="toggleTimer()">Начать</button>
+          <button class="btn btn-secondary" style="width:56px;" onclick="resetTimer()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.9"/></svg>
+          </button>
+        </div>
+
+        <div style="padding:0 0 8px;text-align:center;" id="ex-cycles">
+          <span class="text-sm color-muted">Циклов выполнено: </span>
+          <span class="text-sm fw-600 color-primary" id="cycleCount">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================
+       ЭКРАН 4: КПТ-И МОДУЛЬ
+       ======================================== -->
+  <div class="screen" id="screen-cbti">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-title">КПТ-И модуль</div>
+          <div class="header-subtitle">Когнитивно-поведенческая терапия бессонницы</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Окно сна -->
+      <div class="sleep-window-card">
+        <div class="sleep-window-icon">🌙</div>
+        <div class="sleep-window-title">Ваше рекомендованное окно сна</div>
+        <div class="sleep-window-times">
+          <div class="sleep-time">
+            <div class="sleep-time-value">23:30</div>
+            <div class="sleep-time-label">Ложиться</div>
+          </div>
+          <div class="sleep-arrow">→</div>
+          <div class="sleep-time">
+            <div class="sleep-time-value">06:30</div>
+            <div class="sleep-time-label">Вставать</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;padding:8px 12px;background:rgba(108,99,255,0.15);border-radius:8px;">
+          <span class="text-sm fw-600 color-primary">7 часов</span>
+          <span class="text-sm color-muted"> · эффективность сна 87%</span>
+        </div>
+      </div>
+
+      <!-- Прогресс данных -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-8">
+          <span class="card-title" style="margin-bottom:0;">СБОР ДАННЫХ</span>
+          <span class="badge badge-yellow">7 из 14 дней</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:50%"></div>
+        </div>
+        <div class="text-sm color-muted mt-8">Нужно 14 дней данных для точных рекомендаций</div>
+      </div>
+
+      <!-- Рекомендации -->
+      <p class="section-title">Рекомендации</p>
+
+      <div class="list-item" style="cursor:default;">
+        <div class="icon-circle icon-blue">🛏️</div>
+        <div class="list-item-left">
+          <div class="list-item-title">Контроль стимулов</div>
+          <div class="list-item-sub">Используйте кровать только для сна</div>
+        </div>
+        <div><span class="badge badge-green">Важно</span></div>
+      </div>
+
+      <div class="list-item" style="cursor:default;">
+        <div class="icon-circle icon-yellow">⏰</div>
+        <div class="list-item-left">
+          <div class="list-item-title">Строгий режим</div>
+          <div class="list-item-sub">Вставайте в 06:30 даже на выходных</div>
+        </div>
+        <div><span class="badge badge-yellow">Сложно</span></div>
+      </div>
+
+      <div class="list-item" style="cursor:default;">
+        <div class="icon-circle icon-green">📵</div>
+        <div class="list-item-left">
+          <div class="list-item-title">Гигиена экрана</div>
+          <div class="list-item-sub">За 1 час до сна — без телефона</div>
+        </div>
+        <div><span class="badge badge-green">Помогает</span></div>
+      </div>
+
+      <div class="list-item" style="cursor:default;">
+        <div class="icon-circle icon-pink">🧠</div>
+        <div class="list-item-left">
+          <div class="list-item-title">Парадоксальная интенция</div>
+          <div class="list-item-sub">Лягте в кровать и "не пытайтесь" уснуть</div>
+        </div>
+        <div><span class="badge badge-purple">КПТ</span></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Ограничение сна -->
+      <div class="card">
+        <div class="card-title">ОГРАНИЧЕНИЕ СНА</div>
+        <div class="flex items-center justify-between mb-8">
+          <span class="text-sm color-muted">Разрешённое время в постели</span>
+          <span class="fw-600 color-primary">7 ч 0 мин</span>
+        </div>
+        <div class="flex items-center justify-between mb-8">
+          <span class="text-sm color-muted">Среднее время сна (7 дней)</span>
+          <span class="fw-600 color-success">6 ч 42 мин</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm color-muted">Эффективность сна</span>
+          <span class="fw-600 color-success">87%</span>
+        </div>
+        <div class="progress-bar-wrap mt-8">
+          <div class="progress-bar-fill" style="width:87%;background:linear-gradient(90deg,var(--success),#86efac);"></div>
+        </div>
+        <div class="text-xs color-muted mt-8">При >90% — расширяем окно на 15 минут</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="goTo('screen-diary')">Добавить запись сна</button>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================
+       ЭКРАН 5: ДНЕВНИК МЫСЛЕЙ КПТ
+       ======================================== -->
+  <div class="screen" id="screen-cbt-diary">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-title">Дневник мыслей</div>
+          <div class="header-subtitle">Работа с тревогой по методу КПТ</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openCBTForm()">+ Новая</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Список записей -->
+      <div id="cbt-list">
+        <div class="list-item" onclick="viewCBTEntry(1)">
+          <div style="flex:1;">
+            <div class="flex items-center justify-between">
+              <span class="list-item-title">Рабочий дедлайн</span>
+              <span class="text-xs color-muted">Вчера</span>
+            </div>
+            <div class="list-item-sub mt-4">"Я не успею и всё провалю"</div>
+            <div style="margin-top:6px;display:flex;gap:6px;">
+              <span class="badge badge-red">Тревога 8/10</span>
+              <span class="badge badge-green">Переработано</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-item" onclick="viewCBTEntry(2)">
+          <div style="flex:1;">
+            <div class="flex items-center justify-between">
+              <span class="list-item-title">Конфликт с коллегой</span>
+              <span class="text-xs color-muted">25 апр</span>
+            </div>
+            <div class="list-item-sub mt-4">"Он меня не уважает"</div>
+            <div style="margin-top:6px;display:flex;gap:6px;">
+              <span class="badge badge-yellow">Злость 6/10</span>
+              <span class="badge badge-green">Переработано</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-item" onclick="viewCBTEntry(3)">
+          <div style="flex:1;">
+            <div class="flex items-center justify-between">
+              <span class="list-item-title">Не могу уснуть</span>
+              <span class="text-xs color-muted">24 апр</span>
+            </div>
+            <div class="list-item-sub mt-4">"Если не высплюсь — день будет ужасным"</div>
+            <div style="margin-top:6px;display:flex;gap:6px;">
+              <span class="badge badge-red">Тревога 7/10</span>
+              <span class="badge badge-purple">В процессе</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-card mt-12">
+          <div class="insight-icon">💡</div>
+          <div class="insight-text">За последние 7 дней вы проработали <strong>5 тревожных мыслей</strong>. Чаще всего встречается тип: <strong>катастрофизация</strong>.</div>
+        </div>
+      </div>
+
+      <!-- Форма новой записи -->
+      <div id="cbt-form" style="display:none;">
+        <div onclick="closeCBTForm()" class="header-back" style="margin-bottom:16px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          Назад к списку
+        </div>
+
+        <!-- Индикатор шагов -->
+        <div class="step-indicator">
+          <div class="step-dot done" id="step-1-dot"></div>
+          <div class="step-dot active" id="step-2-dot"></div>
+          <div class="step-dot" id="step-3-dot"></div>
+          <div class="step-dot" id="step-4-dot"></div>
+        </div>
+
+        <!-- Шаг 1: Ситуация -->
+        <div id="cbt-step-1">
+          <div class="step-number">Шаг 1 из 4</div>
+          <div class="step-name">Ситуация</div>
+          <div class="step-hint">Опишите, что произошло. Только факты — без оценок и интерпретаций.</div>
+          <textarea class="form-input" style="height:100px;" placeholder="Например: Сегодня на совещании руководитель прервал меня на полуслове..."></textarea>
+          <div style="margin-top:6px;display:flex;justify-content:flex-end;">
+            <button class="btn btn-primary btn-sm" style="width:auto;padding:10px 24px;" onclick="cbtNextStep(2)">Далее →</button>
+          </div>
+        </div>
+
+        <!-- Шаг 2: Автоматическая мысль -->
+        <div id="cbt-step-2" style="display:none;">
+          <div class="step-number">Шаг 2 из 4</div>
+          <div class="step-name">Автоматическая мысль</div>
+          <div class="step-hint">Какая первая мысль пришла в голову? Часто звучит как факт, но является интерпретацией.</div>
+          <textarea class="form-input" style="height:100px;" placeholder="Например: Он думает, что я некомпетентный. Я всегда делаю что-то не так..."></textarea>
+          <div class="card-sm mt-8" style="margin-bottom:12px;">
+            <div class="text-xs color-muted mb-4">Тип искажения</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <span class="badge badge-purple" style="cursor:pointer;">Катастрофизация</span>
+              <span class="badge badge-yellow" style="cursor:pointer;">Чтение мыслей</span>
+              <span class="badge badge-red" style="cursor:pointer;">Обобщение</span>
+              <span class="badge badge-purple" style="cursor:pointer;">Персонализация</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:space-between;">
+            <button class="btn btn-secondary btn-sm" style="width:auto;" onclick="cbtNextStep(1)">← Назад</button>
+            <button class="btn btn-primary btn-sm" style="width:auto;padding:10px 24px;" onclick="cbtNextStep(3)">Далее →</button>
+          </div>
+        </div>
+
+        <!-- Шаг 3: Эмоция -->
+        <div id="cbt-step-3" style="display:none;">
+          <div class="step-number">Шаг 3 из 4</div>
+          <div class="step-name">Эмоция и интенсивность</div>
+          <div class="step-hint">Что вы почувствовали? Оцените интенсивность от 1 до 10.</div>
+          <div class="form-group">
+            <label class="form-label">Основная эмоция</label>
+            <select class="form-input">
+              <option>Тревога</option>
+              <option>Грусть</option>
+              <option>Злость</option>
+              <option>Стыд</option>
+              <option>Страх</option>
+              <option>Обида</option>
+            </select>
+          </div>
+          <div class="card">
+            <div class="form-label">Интенсивность эмоции</div>
+            <div class="slider-row">
+              <span class="slider-label-sm">1</span>
+              <input type="range" min="1" max="10" value="7">
+              <span class="slider-label-sm">10</span>
+              <span class="slider-value">7</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:space-between;margin-top:12px;">
+            <button class="btn btn-secondary btn-sm" style="width:auto;" onclick="cbtNextStep(2)">← Назад</button>
+            <button class="btn btn-primary btn-sm" style="width:auto;padding:10px 24px;" onclick="cbtNextStep(4)">Далее →</button>
+          </div>
+        </div>
+
+        <!-- Шаг 4: Альтернативная мысль -->
+        <div id="cbt-step-4" style="display:none;">
+          <div class="step-number">Шаг 4 из 4</div>
+          <div class="step-name">Альтернативная мысль</div>
+          <div class="step-hint">Как можно переформулировать эту ситуацию? Найдите более реалистичную и сбалансированную мысль.</div>
+          <div class="exercise-instruction">
+            Спросите себя: "Какие факты подтверждают эту мысль? Какие опровергают? Что бы я сказал другу в этой ситуации?"
+          </div>
+          <textarea class="form-input" style="height:100px;" placeholder="Например: Руководитель мог прервать меня по многим причинам. Это не значит, что я некомпетентный..."></textarea>
+          <div class="card mt-8" style="margin-bottom:12px;">
+            <div class="form-label">Интенсивность после переосмысления</div>
+            <div class="slider-row">
+              <span class="slider-label-sm">1</span>
+              <input type="range" min="1" max="10" value="3">
+              <span class="slider-label-sm">10</span>
+              <span class="slider-value color-success">3</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:space-between;">
+            <button class="btn btn-secondary btn-sm" style="width:auto;" onclick="cbtNextStep(3)">← Назад</button>
+            <button class="btn btn-primary btn-sm" style="width:auto;padding:10px 24px;" onclick="saveCBTEntry()">Сохранить ✓</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Просмотр записи -->
+      <div id="cbt-view" style="display:none;">
+        <div onclick="closeCBTView()" class="header-back" style="margin-bottom:16px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          Назад к списку
+        </div>
+        <div class="card-sm mb-8" style="border-left:3px solid var(--text-muted);">
+          <div class="text-xs color-muted mb-4">СИТУАЦИЯ</div>
+          <div class="text-sm color-text">Сегодня в 23:15, перед сном, думал о завтрашнем дедлайне по проекту</div>
+        </div>
+        <div class="card-sm mb-8" style="border-left:3px solid var(--error);">
+          <div class="text-xs color-muted mb-4">АВТОМАТИЧЕСКАЯ МЫСЛЬ</div>
+          <div class="text-sm fw-600">"Я не успею и всё провалю. Меня уволят."</div>
+          <div style="margin-top:6px;"><span class="badge badge-red">Катастрофизация</span></div>
+        </div>
+        <div class="card-sm mb-8" style="border-left:3px solid var(--warning);">
+          <div class="text-xs color-muted mb-4">ЭМОЦИЯ</div>
+          <div class="text-sm">Тревога — <span class="fw-600 color-warning">8/10</span></div>
+        </div>
+        <div class="card-sm mb-8" style="border-left:3px solid var(--success);">
+          <div class="text-xs color-muted mb-4">АЛЬТЕРНАТИВНАЯ МЫСЛЬ</div>
+          <div class="text-sm">Я уже завершил 80% работы. Даже если не успею всё — можно попросить о небольшом продлении. Одна задача не определяет мою ценность как сотрудника.</div>
+          <div style="margin-top:6px;">Тревога после: <span class="fw-600 color-success">3/10</span></div>
+        </div>
+        <button class="btn btn-ghost" onclick="closeCBTView()">Закрыть</button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================
+       ЭКРАН 6: ПРОГРЕСС И ИНСАЙТЫ
+       ======================================== -->
+  <div class="screen" id="screen-progress">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-title">Прогресс</div>
+          <div class="header-subtitle">Ваша статистика и инсайты</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Переключатель периода -->
+      <div class="tabs">
+        <div class="tab active" onclick="switchPeriod(this,'7')">7 дней</div>
+        <div class="tab" onclick="switchPeriod(this,'30')">30 дней</div>
+        <div class="tab" onclick="switchPeriod(this,'all')">Всё время</div>
+      </div>
+
+      <!-- Сводка -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Средний сон</div>
+          <div class="stat-value color-primary">7.1<span class="stat-unit">ч</span></div>
+          <div class="stat-trend trend-up">↑ +0.4ч к прошлой нед.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Средний стресс</div>
+          <div class="stat-value color-warning">5.2<span class="stat-unit">/10</span></div>
+          <div class="stat-trend trend-up">↓ −0.8 к прошлой нед.</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Лучший сон</div>
+          <div class="stat-value color-success">9.1<span class="stat-unit">/10</span></div>
+          <div class="stat-trend" style="color:var(--text-muted);">22 апреля</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Записей</div>
+          <div class="stat-value color-primary">12</div>
+          <div class="stat-trend" style="color:var(--primary-light);">дней подряд 🔥</div>
+        </div>
+      </div>
+
+      <!-- SVG-график качества сна -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-8">
+          <span class="card-title" style="margin-bottom:0;">КАЧЕСТВО СНА</span>
+          <span class="badge badge-purple">7 дней</span>
+        </div>
+        <svg class="chart-svg" viewBox="0 0 300 80" preserveAspectRatio="none" style="height:80px;">
+          <!-- Сетка -->
+          <line x1="0" y1="64" x2="300" y2="64" stroke="#2a3a5c" stroke-width="1"/>
+          <line x1="0" y1="40" x2="300" y2="40" stroke="#2a3a5c" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <line x1="0" y1="16" x2="300" y2="16" stroke="#2a3a5c" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <!-- Подписи -->
+          <text x="4" y="18" fill="#5a6280" font-size="8">10</text>
+          <text x="4" y="42" fill="#5a6280" font-size="8">5</text>
+          <text x="4" y="67" fill="#5a6280" font-size="8">0</text>
+          <!-- Линия сна (7 точек: пн-вс, значения 5.5,6.2,4.8,7.0,6.5,7.2,7.5) -->
+          <polyline points="18,36 63,28 108,44 153,16 198,22 243,14 288,10"
+                    fill="none" stroke="#a29bfe" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <!-- Точки -->
+          <circle cx="18"  cy="36" r="3.5" fill="#a29bfe"/>
+          <circle cx="63"  cy="28" r="3.5" fill="#a29bfe"/>
+          <circle cx="108" cy="44" r="3.5" fill="#a29bfe"/>
+          <circle cx="153" cy="16" r="3.5" fill="#a29bfe"/>
+          <circle cx="198" cy="22" r="3.5" fill="#a29bfe"/>
+          <circle cx="243" cy="14" r="3.5" fill="#a29bfe"/>
+          <circle cx="288" cy="10" r="4.5" fill="#a29bfe" stroke="#fff" stroke-width="1.5"/>
+        </svg>
+        <div class="chart-days" style="margin-top:4px;">
+          <div class="chart-day">Пн</div>
+          <div class="chart-day">Вт</div>
+          <div class="chart-day">Ср</div>
+          <div class="chart-day">Чт</div>
+          <div class="chart-day">Пт</div>
+          <div class="chart-day">Сб</div>
+          <div class="chart-day" style="color:var(--primary-light);">Вс</div>
+        </div>
+      </div>
+
+      <!-- SVG-график стресса -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-8">
+          <span class="card-title" style="margin-bottom:0;">УРОВЕНЬ СТРЕССА</span>
+          <span class="badge badge-yellow">7 дней</span>
+        </div>
+        <svg class="chart-svg" viewBox="0 0 300 80" preserveAspectRatio="none" style="height:80px;">
+          <line x1="0" y1="64" x2="300" y2="64" stroke="#2a3a5c" stroke-width="1"/>
+          <line x1="0" y1="40" x2="300" y2="40" stroke="#2a3a5c" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <line x1="0" y1="16" x2="300" y2="16" stroke="#2a3a5c" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <text x="4" y="18" fill="#5a6280" font-size="8">10</text>
+          <text x="4" y="42" fill="#5a6280" font-size="8">5</text>
+          <text x="4" y="67" fill="#5a6280" font-size="8">0</text>
+          <!-- Линия стресса (7.0,6.0,8.0,5.0,5.5,4.5,4.8) -->
+          <polyline points="18,16 63,28 108,4 153,40 198,34 243,44 288,42"
+                    fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <circle cx="18"  cy="16" r="3.5" fill="#fbbf24"/>
+          <circle cx="63"  cy="28" r="3.5" fill="#fbbf24"/>
+          <circle cx="108" cy="4"  r="3.5" fill="#fbbf24"/>
+          <circle cx="153" cy="40" r="3.5" fill="#fbbf24"/>
+          <circle cx="198" cy="34" r="3.5" fill="#fbbf24"/>
+          <circle cx="243" cy="44" r="3.5" fill="#fbbf24"/>
+          <circle cx="288" cy="42" r="4.5" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+        </svg>
+        <div class="chart-days" style="margin-top:4px;">
+          <div class="chart-day">Пн</div>
+          <div class="chart-day">Вт</div>
+          <div class="chart-day">Ср</div>
+          <div class="chart-day">Чт</div>
+          <div class="chart-day">Пт</div>
+          <div class="chart-day">Сб</div>
+          <div class="chart-day" style="color:var(--warning);">Вс</div>
+        </div>
+      </div>
+
+      <!-- Инсайты -->
+      <p class="section-title">Инсайты AI</p>
+
+      <div class="insight-card">
+        <div class="insight-icon">🔗</div>
+        <div class="insight-text">Когда уровень стресса выше <strong>7/10</strong>, качество вашего сна снижается в среднем на <strong>2.3 балла</strong>. Техники релаксации перед сном помогут разорвать этот цикл.</div>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-icon">⏰</div>
+        <div class="insight-text">Ваш лучший сон — когда ложитесь в <strong>23:00–23:45</strong>. Более позднее время отхода ко сну снижает качество на 1.8 балла.</div>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-icon">📈</div>
+        <div class="insight-text">За 12 дней ведения дневника ваш средний стресс снизился с <strong>6.8 до 5.2</strong>. Это отличный результат — продолжайте в том же духе!</div>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-icon">🌙</div>
+        <div class="insight-text">По средам ваш сон стабильно хуже. Возможная причина — <strong>нагрузка в середине недели</strong>. Попробуйте добавить технику релаксации во вторник вечером.</div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================
+       ЭКРАН 7: НАСТРОЙКИ
+       ======================================== -->
+  <div class="screen" id="screen-settings">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-title">Настройки</div>
+          <div class="header-subtitle">Персонализация приложения</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Профиль -->
+      <div class="card" style="text-align:center;padding:24px;">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;">А</div>
+        <div style="font-size:17px;font-weight:700;">Алексей Морозов</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">Пользователь с 14 марта 2026</div>
+        <div style="display:flex;justify-content:center;gap:16px;margin-top:14px;">
+          <div style="text-align:center;">
+            <div style="font-size:20px;font-weight:700;color:var(--primary-light);">12</div>
+            <div style="font-size:11px;color:var(--text-muted);">дней подряд</div>
+          </div>
+          <div style="width:1px;background:var(--border);"></div>
+          <div style="text-align:center;">
+            <div style="font-size:20px;font-weight:700;color:var(--success);">42</div>
+            <div style="font-size:11px;color:var(--text-muted);">записей всего</div>
+          </div>
+          <div style="width:1px;background:var(--border);"></div>
+          <div style="text-align:center;">
+            <div style="font-size:20px;font-weight:700;color:var(--warning);">5</div>
+            <div style="font-size:11px;color:var(--text-muted);">техник</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Уведомления -->
+      <p class="section-title">Уведомления</p>
+      <div class="card">
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Напоминание заполнить дневник</div>
+            <div class="toggle-sub">Каждое утро в выбранное время</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="form-group" style="margin:12px 0 4px;padding-top:4px;">
+          <label class="form-label">Время напоминания</label>
+          <input type="time" class="form-input" value="08:00">
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Напоминание о сне</div>
+            <div class="toggle-sub">За 30 минут до отхода ко сну</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="form-group" style="margin:12px 0 4px;padding-top:4px;">
+          <label class="form-label">Время сна</label>
+          <input type="time" class="form-input" value="23:00">
+        </div>
+        <div class="toggle-row" style="border-bottom:none;">
+          <div class="toggle-info">
+            <div class="toggle-title">Еженедельный отчёт</div>
+            <div class="toggle-sub">Сводка прогресса каждое воскресенье</div>
+          </div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+
+      <!-- Данные -->
+      <p class="section-title">Данные</p>
+      <div class="card">
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Сохранять данные локально</div>
+            <div class="toggle-sub">Данные хранятся только на устройстве</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+
+        <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button class="btn btn-secondary btn-sm" onclick="showExportModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Экспорт CSV
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="showExportModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Экспорт JSON
+          </button>
+        </div>
+
+        <div style="margin-top:10px;">
+          <button class="btn btn-ghost btn-sm" style="color:var(--error);width:100%;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Удалить все данные
+          </button>
+        </div>
+      </div>
+
+      <!-- Приложение -->
+      <p class="section-title">Приложение</p>
+      <div class="card">
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Тёмная тема</div>
+            <div class="toggle-sub">Рекомендуется для вечернего использования</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-row" style="border-bottom:none;">
+          <div class="toggle-info">
+            <div class="toggle-title">Хаптик-отклик</div>
+            <div class="toggle-sub">Вибрация при взаимодействии</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:20px 0 8px;">
+        <div class="text-sm color-muted">СоноСтресс v1.0.0</div>
+        <div class="text-xs color-muted mt-4">Open-source · MIT License</div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ===== НИЖНЯЯ НАВИГАЦИЯ ===== -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="nav-dashboard" onclick="goTo('screen-dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Главная</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" id="nav-diary" onclick="goTo('screen-diary')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Дневник</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" id="nav-techniques" onclick="goTo('screen-techniques')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      <span>Техники</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" id="nav-progress" onclick="goTo('screen-progress')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Прогресс</span>
+      <div class="nav-dot"></div>
+    </div>
+  </nav>
+
+</div><!-- /phone-frame -->
+
+
+<!-- ===== МОДАЛ ЭКСПОРТА ===== -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Экспорт данных</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Выберите формат для экспорта всех ваших данных (42 записи)</div>
+    <div style="display:grid;gap:10px;">
+      <button class="btn btn-primary" onclick="closeModal('exportModal')">Скачать CSV (таблица)</button>
+      <button class="btn btn-secondary" onclick="closeModal('exportModal')">Скачать JSON (полные данные)</button>
+      <button class="btn btn-ghost" onclick="closeModal('exportModal')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  // ===== ДАННЫЕ О ТЕХНИКАХ =====
+  const techniques = {
+    '478': {
+      title: 'Дыхание 4-7-8',
+      desc: 'Техника доктора Вейля активирует парасимпатическую нервную систему, снижая тревогу за 3-5 минут.',
+      instructions: 'Выдохните полностью через рот. Закройте рот и вдохните через нос, считая до 4. Задержите дыхание на счёт 7. Выдохните через рот со звуком, считая до 8. Повторите 4 раза.',
+      phases: [
+        {text:'Вдох', duration:4000, size:'scale(1.2)', color:'#6c63ff'},
+        {text:'Задержка', duration:7000, size:'scale(1.2)', color:'#a29bfe'},
+        {text:'Выдох', duration:8000, size:'scale(0.85)', color:'#c3b4f7'},
+      ],
+      totalTime: 300
+    },
+    'square': {
+      title: 'Квадратное дыхание',
+      desc: 'Боевая техника ВМФ США для быстрого восстановления концентрации и снижения стресса.',
+      instructions: 'Вдохните через нос, считая до 4. Задержите дыхание на счёт 4. Выдохните через рот, считая до 4. Снова задержите на 4. Повторите 4-6 раз.',
+      phases: [
+        {text:'Вдох', duration:4000, size:'scale(1.15)', color:'#6c63ff'},
+        {text:'Задержка', duration:4000, size:'scale(1.15)', color:'#a29bfe'},
+        {text:'Выдох', duration:4000, size:'scale(0.9)', color:'#c3b4f7'},
+        {text:'Задержка', duration:4000, size:'scale(0.9)', color:'#8b8fa8'},
+      ],
+      totalTime: 240
+    },
+    'pmr': {
+      title: 'Прогрессивная мышечная релаксация',
+      desc: 'Метод Якобсона: поочерёдное напряжение и расслабление групп мышц устраняет физическое напряжение.',
+      instructions: 'Начните с ног: напрягите мышцы стоп на 5-7 секунд, затем резко расслабьте. Почувствуйте разницу. Поднимайтесь выше: икры, бёдра, живот, грудь, плечи, лицо. На каждую группу 5-7 секунд напряжения + 20 секунд расслабления.',
+      phases: [
+        {text:'Напряжение', duration:6000, size:'scale(1.25)', color:'#f87171'},
+        {text:'Расслабление', duration:20000, size:'scale(0.8)', color:'#4ade80'},
+      ],
+      totalTime: 900
+    },
+    'grounding': {
+      title: 'Заземление 5-4-3-2-1',
+      desc: 'Техника осознанности для быстрого выхода из панической атаки через концентрацию на органах чувств.',
+      instructions: 'Назовите вслух: 5 вещей, которые вы ВИДИТЕ → 4 вещи, которые можно ПОТРОГАТЬ → 3 звука, которые вы СЛЫШИТЕ → 2 запаха, которые вы ЧУВСТВУЕТЕ → 1 вкус во рту. Говорите медленно и осознанно.',
+      phases: [
+        {text:'5 вижу', duration:15000, size:'scale(1.1)', color:'#6c63ff'},
+        {text:'4 трогаю', duration:12000, size:'scale(1.1)', color:'#a29bfe'},
+        {text:'3 слышу', duration:9000, size:'scale(1.05)', color:'#c3b4f7'},
+        {text:'2 чувствую', duration:6000, size:'scale(1.0)', color:'#8b8fa8'},
+        {text:'1 вкус', duration:3000, size:'scale(0.95)', color:'#6c63ff'},
+      ],
+      totalTime: 180
+    }
+  };
+
+  // ===== СОСТОЯНИЕ =====
+  let currentTechnique = null;
+  let timerInterval = null;
+  let timerRunning = false;
+  let timerSeconds = 300;
+  let cycleCount = 0;
+  let phaseIndex = 0;
+  let phaseTimeout = null;
+
+  // ===== НАВИГАЦИЯ =====
+  const screenNavMap = {
+    'screen-dashboard':  'nav-dashboard',
+    'screen-diary':      'nav-diary',
+    'screen-techniques': 'nav-techniques',
+    'screen-cbti':       'nav-techniques',
+    'screen-cbt-diary':  'nav-techniques',
+    'screen-progress':   'nav-progress',
+    'screen-settings':   null,
+  };
+
+  function goTo(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    document.getElementById(screenId).scrollTop = 0;
+
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const navId = screenNavMap[screenId];
+    if (navId) document.getElementById(navId).classList.add('active');
+  }
+
+  // ===== ДАТА И ВРЕМЯ =====
+  function updateDateTime() {
+    const now = new Date();
+    const h = now.getHours();
+    let greeting = h < 5 ? 'Доброй ночи' : h < 12 ? 'Доброе утро' : h < 17 ? 'Добрый день' : 'Добрый вечер';
+    const el = document.getElementById('currentTime');
+    if (el) el.textContent = greeting;
+  }
+
+  // ===== ПОЛЗУНКИ =====
+  function updateSlider(inputId, valueId, badgeId) {
+    const val = parseInt(document.getElementById(inputId).value);
+    const valEl = document.getElementById(valueId);
+    if (valEl) valEl.textContent = val;
+    if (badgeId) {
+      const badge = document.getElementById(badgeId);
+      if (badge) {
+        if (val <= 3) { badge.textContent = 'Низкий'; badge.className = 'badge badge-green'; }
+        else if (val <= 6) { badge.textContent = 'Умеренно'; badge.className = 'badge badge-yellow'; }
+        else { badge.textContent = 'Высокий'; badge.className = 'badge badge-red'; }
+      }
+    }
+    document.getElementById(inputId).style.setProperty('--val', val);
+  }
+
+  // ===== ВЫБОР НАСТРОЕНИЯ =====
+  function selectMood(el) {
+    document.querySelectorAll('.mood-btn').forEach(b => {
+      b.style.background = 'var(--bg-card2)';
+      b.style.borderColor = 'var(--border)';
+      b.querySelector('div:last-child').style.color = 'var(--text-muted)';
+    });
+    el.style.background = 'rgba(108,99,255,0.2)';
+    el.style.borderColor = 'var(--primary)';
+    el.querySelector('div:last-child').style.color = 'var(--primary-light)';
+  }
+
+  // ===== ДНЕВНИК СНА =====
+  function saveDiary() {
+    document.getElementById('diary-form').style.display = 'none';
+    document.getElementById('diary-saved').style.display = 'block';
+  }
+  function showDiaryForm() {
+    document.getElementById('diary-form').style.display = 'block';
+    document.getElementById('diary-saved').style.display = 'none';
+  }
+
+  // ===== ТЕХНИКИ =====
+  function openTechnique(id) {
+    currentTechnique = techniques[id];
+    timerSeconds = currentTechnique.totalTime;
+    cycleCount = 0;
+    document.getElementById('ex-title').textContent = currentTechnique.title;
+    document.getElementById('ex-desc').textContent = currentTechnique.desc;
+    document.getElementById('ex-instructions').textContent = currentTechnique.instructions;
+    document.getElementById('technique-list').style.display = 'none';
+    document.getElementById('technique-exercise').style.display = 'block';
+    document.getElementById('cycleCount').textContent = '0';
+    document.getElementById('breathPhase').textContent = 'Нажмите, чтобы начать';
+    document.getElementById('breathInner').textContent = 'Готов';
+    document.getElementById('btnTimerStart').textContent = 'Начать';
+    document.getElementById('timerLabel').textContent = 'Нажмите кнопку, чтобы начать';
+    updateTimerDisplay(timerSeconds);
+    resetBreathAnimation();
+    timerRunning = false;
+  }
+
+  function closeTechnique() {
+    stopTimer();
+    clearTimeout(phaseTimeout);
+    resetBreathAnimation();
+    document.getElementById('technique-list').style.display = 'block';
+    document.getElementById('technique-exercise').style.display = 'none';
+  }
+
+  // ===== ТАЙМЕР =====
+  function toggleTimer() {
+    if (timerRunning) {
+      stopTimer();
+    } else {
+      startTimer();
+    }
+  }
+
+  function startTimer() {
+    timerRunning = true;
+    document.getElementById('btnTimerStart').textContent = 'Пауза';
+    document.getElementById('timerLabel').textContent = 'Выполняется...';
+    startBreathCycle();
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      updateTimerDisplay(timerSeconds);
+      if (timerSeconds <= 0) {
+        stopTimer();
+        document.getElementById('breathPhase').textContent = 'Упражнение завершено!';
+        document.getElementById('breathInner').textContent = '✓';
+        document.getElementById('timerLabel').textContent = 'Отлично! Вы завершили упражнение';
+        document.getElementById('btnTimerStart').textContent = 'Начать снова';
+        timerSeconds = currentTechnique.totalTime;
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    timerRunning = false;
+    clearInterval(timerInterval);
+    clearTimeout(phaseTimeout);
+    document.getElementById('btnTimerStart').textContent = 'Продолжить';
+    document.getElementById('timerLabel').textContent = 'Нажмите, чтобы продолжить';
+  }
+
+  function resetTimer() {
+    stopTimer();
+    timerSeconds = currentTechnique ? currentTechnique.totalTime : 300;
+    updateTimerDisplay(timerSeconds);
+    cycleCount = 0;
+    document.getElementById('cycleCount').textContent = '0';
+    document.getElementById('btnTimerStart').textContent = 'Начать';
+    document.getElementById('timerLabel').textContent = 'Нажмите кнопку, чтобы начать';
+    document.getElementById('breathPhase').textContent = 'Нажмите, чтобы начать';
+    document.getElementById('breathInner').textContent = 'Готов';
+    resetBreathAnimation();
+  }
+
+  function updateTimerDisplay(sec) {
+    const m = Math.floor(Math.abs(sec) / 60).toString().padStart(2, '0');
+    const s = (Math.abs(sec) % 60).toString().padStart(2, '0');
+    const el = document.getElementById('timerDisplay');
+    if (el) el.textContent = `${m}:${s}`;
+  }
+
+  // ===== АНИМАЦИЯ ДЫХАНИЯ =====
+  function resetBreathAnimation() {
+    const circle = document.getElementById('breathCircle');
+    if (circle) {
+      circle.style.transition = 'none';
+      circle.style.transform = 'scale(1)';
+      circle.style.borderColor = 'rgba(162,155,254,0.5)';
+    }
+    phaseIndex = 0;
+  }
+
+  function startBreathCycle() {
+    if (!currentTechnique || !timerRunning) return;
+    const phases = currentTechnique.phases;
+    const phase = phases[phaseIndex % phases.length];
+    const circle = document.getElementById('breathCircle');
+    const inner = document.getElementById('breathInner');
+    const phaseEl = document.getElementById('breathPhase');
+    if (!circle) return;
+    circle.style.transition = `transform ${phase.duration / 1000}s ease-in-out, border-color 0.5s`;
+    circle.style.transform = phase.size;
+    circle.style.borderColor = phase.color + '80';
+    if (inner) inner.textContent = phase.text;
+    if (phaseEl) phaseEl.textContent = `${phase.text} · ${phase.duration / 1000} сек`;
+    if (phaseIndex > 0 && phaseIndex % phases.length === 0) {
+      cycleCount++;
+      document.getElementById('cycleCount').textContent = cycleCount;
+    }
+    phaseIndex++;
+    phaseTimeout = setTimeout(() => {
+      if (timerRunning) startBreathCycle();
+    }, phase.duration);
+  }
+
+  // ===== КПТ ФОРМА =====
+  let currentCBTStep = 1;
+
+  function openCBTForm() {
+    currentCBTStep = 1;
+    document.getElementById('cbt-list').style.display = 'none';
+    document.getElementById('cbt-form').style.display = 'block';
+    document.getElementById('cbt-view').style.display = 'none';
+    updateCBTSteps(1);
+  }
+
+  function closeCBTForm() {
+    document.getElementById('cbt-list').style.display = 'block';
+    document.getElementById('cbt-form').style.display = 'none';
+  }
+
+  function cbtNextStep(step) {
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById(`cbt-step-${i}`);
+      if (el) el.style.display = i === step ? 'block' : 'none';
+    }
+    currentCBTStep = step;
+    updateCBTSteps(step);
+  }
+
+  function updateCBTSteps(active) {
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById(`step-${i}-dot`);
+      if (!dot) continue;
+      if (i < active) dot.className = 'step-dot done';
+      else if (i === active) dot.className = 'step-dot active';
+      else dot.className = 'step-dot';
+    }
+  }
+
+  function saveCBTEntry() {
+    closeCBTForm();
+    const el = document.createElement('div');
+    el.innerHTML = `<div class="list-item" onclick="viewCBTEntry(0)" style="border-color:var(--success);">
+      <div style="flex:1;">
+        <div class="flex items-center justify-between">
+          <span class="list-item-title">Новая запись</span>
+          <span class="text-xs color-muted">Сейчас</span>
+        </div>
+        <div class="list-item-sub mt-4">Только что добавлено</div>
+        <div style="margin-top:6px;display:flex;gap:6px;">
+          <span class="badge badge-green">Переработано</span>
+        </div>
+      </div>
+    </div>`;
+    const list = document.getElementById('cbt-list');
+    list.insertBefore(el.firstElementChild, list.firstChild);
+  }
+
+  function viewCBTEntry(id) {
+    document.getElementById('cbt-list').style.display = 'none';
+    document.getElementById('cbt-form').style.display = 'none';
+    document.getElementById('cbt-view').style.display = 'block';
+  }
+
+  function closeCBTView() {
+    document.getElementById('cbt-list').style.display = 'block';
+    document.getElementById('cbt-view').style.display = 'none';
+  }
+
+  // ===== ПЕРЕКЛЮЧАТЕЛЬ ПЕРИОДА =====
+  function switchPeriod(el, period) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ===== МОДАЛЫ =====
+  function showExportModal() {
+    document.getElementById('exportModal').classList.add('open');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal('exportModal');
+  });
+
+  // ===== ЗВЁЗДНОЕ НЕБО =====
+  (function createStars() {
+    const bg = document.getElementById('starsBg');
+    for (let i = 0; i < 60; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      const size = Math.random() * 2.5 + 0.5;
+      star.style.cssText = `
+        width:${size}px;height:${size}px;
+        left:${Math.random()*100}%;
+        top:${Math.random()*100}%;
+        opacity:${Math.random()*0.2+0.05};
+        animation: twinkle ${Math.random()*4+3}s ease-in-out infinite;
+        animation-delay:${Math.random()*5}s;
+      `;
+      bg.appendChild(star);
+    }
+  })();
+
+  // CSS анимация мерцания звёзд
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes twinkle {
+      0%,100% { opacity: 0.05; }
+      50% { opacity: 0.25; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // ===== ИНИТ =====
+  updateDateTime();
+  cbtNextStep(1);
+</script>
+
+</body>
+</html>
